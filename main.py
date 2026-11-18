@@ -106,14 +106,33 @@ def analyze_case(case_id, case, filters):
     if group is None:
         return {"id": case_id, "status": "FAIL", "reason": "해당 크기 필터 없음"}
 
-    score_cross = mac(pattern, group["cross"])
-    score_x = mac(pattern, group["x"])
+    fs = {}                                    # 정규화된 키로 다시 담을 딕셔너리
+    for k, v in group.items():
+        fs[normalize_label(k)] = v             # "cross" → "Cross", "x" → "X"
+    if "Cross" not in fs or "X" not in fs:
+        return {"id": case_id, "status": "FAIL", "reason": "Cross/X 필터 누락"}
+
+    score_cross = mac(pattern, fs["Cross"])
+    score_x = mac(pattern, fs["X"])
     verdict = judge(score_cross, score_x, "Cross", "X")
 
-    return {"id": case_id, "status": "OK", "cross": score_cross, "x": score_x, "verdict": verdict}
+    expected = normalize_label(case["expected"])
+    if expected is None:
+        return {"id": case_id, "status": "FAIL", "reason": "알 수 없는 expected 라벨"}
+
+    if verdict == expected:
+        status, reason = "PASS", ""
+    elif verdict == "UNDECIDED":
+        status, reason = "FAIL", "동점(UNDECIDED)"
+    else:
+        status, reason = "FAIL", "판정과 expected 불일치"
+
+    return {"id": case_id, "status": status, "reason": reason,
+            "cross": score_cross, "x": score_x,
+            "verdict": verdict, "expected": expected}
 
 for case_id, case in data["patterns"].items():
     r = analyze_case(case_id, case, data["filters"])
-    print(r)
+    print(r["id"], r["status"], r["verdict"], r["expected"], r["reason"])
 
-# mode1()
+mode1()

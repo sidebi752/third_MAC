@@ -12,9 +12,9 @@
 | 1 | n×n 2차원 리스트 다루기 | 완료 |
 | 2 | MAC 연산 함수 `mac()` | 완료 |
 | 3 | 모드 1: 3×3 입력, 검증, 재입력 | 완료 |
-| 4 | 점수 비교와 판정(A/B), epsilon 동점 처리 | 모드 1 판정 확인 / epsilon 동점(UNDECIDED) 확인 필요 |
-| 5 | 라벨 정규화(`+`→Cross, `x`→X) | 미완료 |
-| 6 | 모드 2: data.json 일괄 판정, PASS/FAIL | 미완료 |
+| 4 | 점수 비교와 판정(A/B), epsilon 동점 처리 | 모드 1 판정 확인 / epsilon 동점(UNDECIDED) 완료 |
+| 5 | 라벨 정규화(`+`→Cross, `x`→X) | 완료 |
+| 6 | 모드 2: data.json 일괄 판정, PASS/FAIL | 요약 필요 |
 | 7 | 성능 측정(크기별 10회 평균 ms) | 미완료 |
 | 8 | 결과 요약, 결과 리포트(실패 원인 + 시간 복잡도) | 미완료 |
 | 보너스 | 1차원 배열 최적화, 패턴 생성기 | 미정 |
@@ -46,7 +46,7 @@ patterns  size_{N}_{번호}             →  input (N×N 숫자표), expected (�
 - 케이스 키 `size_13_2`에서 `13`은 한 변의 길이, `2`는 케이스 번호이다. 키의 N으로 같은 크기의 필터를 고른다.
 - 패턴은 6개(5, 13, 25 크기별 2개)이고, 3×3은 data.json에 없어 모드 1에서 직접 입력한다.
 - 필터 키는 `cross`/`x`인데 expected는 `+`/`x`로 표기가 섞여 있다. 그대로 비교하면 정상 판정도 FAIL이 되므로
-  내부 표준 라벨 `Cross`/`X`로 통일(정규화)해야 한다. (5단계에서 구현 예정)
+  내부 표준 라벨 `Cross`/`X`로 통일(정규화)해야 한다. (5단계에서 구현 완료)
 
 ## 5. 구현 요약
 
@@ -78,26 +78,29 @@ def mac(pattern, filt):
 이유와 예시는 7절에 정리했다.
 
 ### 라벨 정규화 구현
-```bash
-PS C:\Users\MKJ\Desktop\mac> py main.py
+-정규화가 없다면 정상 케이스도 FAIL이 되었을 것
+```powershell
+PS C:\Users\***\Desktop\mac> py main.py
 dict_keys(['size_5', 'size_13', 'size_25'])
-'+' → cross
+'+' → Cross
 'x' → X
 'X' → X
-'cross' → cross
-' Cross ' → cross
-'CROSS' → cross
+'cross' → Cross
+' Cross ' → Cross
+'CROSS' → Cross
 'circle' → None
 None → None
-PS C:\Users\MKJ\Desktop\mac> py main.py
+PS C:\Users\***\Desktop\mac> py main.py
 dict_keys(['size_5', 'size_13', 'size_25'])
 X
 cross
-cross → cross
+cross → Cross
 x → X
 ```
 
-## 6. 실행 결과 (모드 1)
+- 모드 2 구현 요약:
+  키에서 N 추출 → 크기 검증 → 필터 키 정규화 → MAC → 판정 → expected 비교
+
 ## 6. 실행 결과 
 
 ### 모드 1
@@ -121,23 +124,59 @@ A 점수: 3.0
 B 점수: 4.0
 판정: B
 ```
+  손계산으로 검산했다. A는 패턴의 첫 행 세 칸(1×1)만 겹쳐 3점이다. B는 첫 행 3점에 2행 3열(1×1) 1점이 더해져 4점이다. 따라서 판정 B가 맞다.
 
-손계산으로 검산했다. A는 패턴의 첫 행 세 칸(1×1)만 겹쳐 3점이다. B는 첫 행 3점에 2행 3열(1×1) 1점이 더해져 4점이다. 따라서 판정 B가 맞다.
+```text
+필터 A (3줄 입력, 공백 구분)
+숫자 입력: 0 1 0
+숫자 입력: 1 1 1
+숫자 입력: 0 1 0
+필터 B (3줄 입력, 공백 구분)
+숫자 입력: 1 0 1
+숫자 입력: 0 1 0
+숫자 입력: 1 0 1
+패턴 (3줄 입력, 공백 구분)
+숫자 입력: 1 0 1
+숫자 입력: 0 1 0
+숫자 입력: 1 0 1
+A 점수: 1.0
+B 점수: 5.0
+판정: B
+```
+  십자가/X/X 인 경우
 
-> 확인할 것: 십자가 필터 A, X 필터 B, X 패턴 입력(기대 A 1.0 / B 5.0 / 판정 B)과
-> 동점 입력(같은 필터 두 개)의 실행 화면도 위처럼 이 절에 추가한다.
+```text
+필터 A (3줄 입력, 공백 구분)
+숫자 입력: 1 1 1
+숫자 입력: 1 1 1
+숫자 입력: 1 1 0
+필터 B (3줄 입력, 공백 구분)
+숫자 입력: 1 1 1
+숫자 입력: 1 1 1
+숫자 입력: 1 1 0
+패턴 (3줄 입력, 공백 구분)
+숫자 입력: 0 0 0
+숫자 입력: 0 0 0
+숫자 입력: 0 1 0
+A 점수: 1.0
+B 점수: 1.0
+판정: UNDECIDED
+```
+  동점 입력(같은 필터 두 개)의 실행 화면
 
 ### 모드 2
-
-- 케이스 키에서 크기 N을 뽑고 정사각형 크기 검증
-  data.json 키 규칙: size_N_번호 (예: size_5_1)
-```css
-PS C:\Users\User\Desktop\third_MAC> py main.py
+- 동점 3건이 FAIL인 이유:
+```powershell
+PS C:\Users\***\Desktop\mac> py main.py
 dict_keys(['size_5', 'size_13', 'size_25'])
-True
-False
-False
+size_5_1 FAIL UNDECIDED X 동점(UNDECIDED)
+size_5_2 PASS Cross Cross 
+size_13_1 PASS X X 
+size_13_2 FAIL UNDECIDED Cross 동점(UNDECIDED)
+size_25_1 FAIL UNDECIDED X 동점(UNDECIDED)
+size_25_2 PASS Cross Cross 
 ```
+ 예를 들어 size_5_1은 Cross 필터 가운데 값 0.9와 X 패턴 9칸 × 0.1 = 0.9가 같게 설계돼 있고, float 계산에서는 0.9와 0.8999999999999999처럼 미세하게 어긋나지만 epsilon 정책에 따라 동점이다.
 
 ## 7. 개념 정리
 
@@ -170,11 +209,24 @@ MAC은 N×N 칸을 모두 한 번씩 계산하므로 연산 횟수가 3×3=9, 5�
 - 문제: 안내 문구에 "3개"가 고정되어 있는데 함수는 `n`을 받는다.
 - 해결: 문구에 `n` 값을 넣는 f-string(`f"... {n}개 ..."`)으로 바꿨다.
 
+### 8-3. any 오용
+- 문제: parse_size_from_key에 any를 넣었다가 오류 발생
+- 해결: 케이스 키에서 크기 N을 뽑고 정사각형 크기 검증하는 것이므로 n을 넣어야 했음.
+  data.json 키 규칙: size_N_번호 (예: size_5_1)
+  
+```powershell
+PS C:\Users\User\Desktop\third_MAC> py main.py
+dict_keys(['size_5', 'size_13', 'size_25'])
+True
+False
+False
+```
+
 ## 9. 앞으로 할 일
 
 - [x] 라벨 정규화 함수(`+`, `cross` → Cross / `x`, `X` → X)
-- [ ] 모드 2: 키에서 N 추출, 필터·패턴 크기 검증, 불일치 시 케이스 단위 FAIL
-- [ ] 판정(Cross/X/UNDECIDED)과 expected 비교, 요약(총/통과/실패)
+- [x] 모드 2: 키에서 N 추출, 필터·패턴 크기 검증, 불일치 시 케이스 단위 FAIL
+- [x] 판정(Cross/X/UNDECIDED)과 expected 비교, 요약(총/통과/실패)
 - [ ] 성능 측정(`time.perf_counter`, 크기별 10회 평균)과 N² 표
 - [ ] 결과 리포트 10줄 이상(실패 원인 분석, O(N²) 근거)
 - [ ] 모드 선택 메뉴(`main`)
@@ -189,3 +241,11 @@ MAC은 N×N 칸을 모두 한 번씩 계산하므로 연산 횟수가 3×3=9, 5�
 - 11/17
 b18cfb0 (HEAD -> main, origin/main) Docs: 미션 3 README 초안 작성
 9d8a808 Feat: MAC 연산, 모드 1 입력 검증과 판정 구현
+
+- 11/18
+* 470c6fb (origin/feat/mode2) Feat: 미완
+* 584a2de Feat: 케이스 키 크기 추출과 정사각형 검증
+| * 42c2e2a (HEAD -> main, origin/main, origin/HEAD) Feat: 라벨 정규화 구현
+|/
+* b18cfb0 Docs: 미션 3 README 초안 작성
+* 9d8a808 Feat: MAC 연산, 모드 1 입력 검증과 판정 구현
