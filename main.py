@@ -67,4 +67,26 @@ def mode1():
     print("B 점수:", score_b)
     print("판정:", judge(score_a, score_b))
 
-mode1()
+def parse_size_from_key(key):
+    parts = key.split("_")      # "size_13_2" -> ["size", "13", "2"]
+    if len(parts) < n or parts[0] != "size":
+        return None
+    try: 
+        return int(parts[n])
+    except ValueError:
+        return None
+
+def is_square(matrix, n):
+    if len(matrix) != n:
+        return False
+    for row in matrix:
+        if len(row) != n:
+            return False
+    return True
+
+# mode1()
+
+p = data["patterns"]["size_5_1"]["input"]
+print(is_square(p, 5))
+print(is_square(p, 13))
+print(is_square(p[:4], 5))
