@@ -77,6 +77,26 @@ def mac(pattern, filt):
 두 점수의 차이가 `1e-9`보다 작으면 같은 점수로 보고 판정 불가(UNDECIDED)로 처리한다.
 이유와 예시는 7절에 정리했다.
 
+### 라벨 정규화 구현
+```bash
+PS C:\Users\MKJ\Desktop\mac> py main.py
+dict_keys(['size_5', 'size_13', 'size_25'])
+'+' → cross
+'x' → X
+'X' → X
+'cross' → cross
+' Cross ' → cross
+'CROSS' → cross
+'circle' → None
+None → None
+PS C:\Users\MKJ\Desktop\mac> py main.py
+dict_keys(['size_5', 'size_13', 'size_25'])
+X
+cross
+cross → cross
+x → X
+```
+
 ## 6. 실행 결과 (모드 1)
 
 필터 A = `1 1 1 / 0 0 0 / 0 0 0`, 필터 B = `1 1 1 / 0 0 1 / 0 0 0`, 패턴 = `1 1 1 / 1 1 1 / 1 1 0`을 입력했다.
@@ -137,7 +157,7 @@ MAC은 N×N 칸을 모두 한 번씩 계산하므로 연산 횟수가 3×3=9, 5�
 
 ## 9. 앞으로 할 일
 
-- [ ] 라벨 정규화 함수(`+`, `cross` → Cross / `x`, `X` → X)
+- [x] 라벨 정규화 함수(`+`, `cross` → Cross / `x`, `X` → X)
 - [ ] 모드 2: 키에서 N 추출, 필터·패턴 크기 검증, 불일치 시 케이스 단위 FAIL
 - [ ] 판정(Cross/X/UNDECIDED)과 expected 비교, 요약(총/통과/실패)
 - [ ] 성능 측정(`time.perf_counter`, 크기별 10회 평균)과 N² 표
@@ -148,3 +168,9 @@ MAC은 N×N 칸을 모두 한 번씩 계산하므로 연산 횟수가 3×3=9, 5�
 
 - 코디세이 미션3 문서, 개념 가이드 「MAC 연산과 NPU의 이해」, 해결 가이드 「Mini NPU Simulator 개발」
 - 다른 교육생이 공유한 예시 README의 목차 구성(문서 구조만 참고했고, 내용과 측정값은 내 실행 결과로 작성함)
+
+## 11. 커밋 기록
+(git log --oneline)
+- 11/17
+b18cfb0 (HEAD -> main, origin/main) Docs: 미션 3 README 초안 작성
+9d8a808 Feat: MAC 연산, 모드 1 입력 검증과 판정 구현

@@ -5,7 +5,7 @@ with open( "data.json", encoding="utf-8") as f:
 
 print(data["filters"].keys())  # size_5, size_13, size_25
 # print(len(data["filters"]["size_5"]["cross"]))  # 5가 나오면 정상
-# print(data["patterns"]["size_5_1"]["expected"])  # x
+# print(data["patterns"]["size_5_1"]["expected"])  # X
 
 def mac(pattern, filt):
     total = 0
@@ -54,6 +54,15 @@ def judge(a, b):
     if a > b:
         return "A"
     return "B"
+
+def normalize_label(raw):
+    key = str(raw).strip().lower()     # strip()은 글자 앞뒤의 공백을 지우고, lower()는 영문을 소문자로 바꿉니다. str(raw)는 무엇이 들어와도 일단 문자열로 바꿔서 에러를 막습니다.
+    if key in ("+", "cross"):
+        return "cross"                     
+    if key in ("x",):
+        return "X"
+    return None                        # 모르는 라벨은 None
+    
 
 def mode1():
     a = read_matrix("필터 A")
