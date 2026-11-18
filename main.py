@@ -84,9 +84,33 @@ def is_square(matrix, n):
             return False
     return True
 
-# mode1()
+def judge(a, b, la="A", lb="B"):
+    if abs(a - b) < EPSILON:
+        return "UNDECIDED"
+    if a > b:
+        return la
+    return lb
 
-p = data["patterns"]["size_5_1"]["input"]
-print(is_square(p, 5))
-print(is_square(p, 13))
-print(is_square(p[:4], 5))
+def analyze_case(case_id, case, filters):
+    n = parse_size_from_key(case_id)
+    if n is None:
+        return {"id": case_id, "status": "FAIL", "reason": "케이스 키 형식 오류"}
+
+    pattern = case["input"]
+    if not is_square(pattern, n):
+        return {"id": case_id, "status": "FAIL", "reason": "패턴 크기 불일치"}
+
+    group = filters.get(f"size_{n}")
+    if group is None:
+        return {"id": case_id, "status": "FAIL", "reason": "해당 크기 필터 없음"}
+
+    score_cross = mac(pattern, group["cross"])
+    score_x = mac(pattern, group["x"])
+    verdict = judge(score_cross, score_x, "Cross", "X")
+
+    return {"id": case_id, "status": "OK", "cross": score_cross, "x": score_x, "verdict": verdict}
+
+for case_id, case in data["patterns"].items():
+    r = analyze_case(case_id), case, data
+
+# mode1()
