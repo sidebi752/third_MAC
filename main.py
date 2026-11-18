@@ -48,17 +48,10 @@ def read_matrix(name, n=3):
 
 EPSILON = 1e-9    # 허용오차. 이 값보다 차이가 작으면 같다고 본다
 
-def judge(a, b):
-    if abs(a - b) < EPSILON:
-        return "UNDECIDED"      # 동점
-    if a > b:
-        return "A"
-    return "B"
-
 def normalize_label(raw):
     key = str(raw).strip().lower()     # strip()은 글자 앞뒤의 공백을 지우고, lower()는 영문을 소문자로 바꿉니다. str(raw)는 무엇이 들어와도 일단 문자열로 바꿔서 에러를 막습니다.
     if key in ("+", "cross"):
-        return "cross"                     
+        return "Cross"                     
     if key in ("x",):
         return "X"
     return None                        # 모르는 라벨은 None
@@ -76,4 +69,51 @@ def mode1():
     print("B 점수:", score_b)
     print("판정:", judge(score_a, score_b))
 
-mode1()
+def parse_size_from_key(key):
+    parts = key.split("_")      # "size_13_2" -> ["size", "13", "2"]
+    if len(parts) < 2 or parts[0] != "size":
+        return None
+    try: 
+        return int(parts[1])
+    except ValueError:
+        return None
+
+def is_square(matrix, n):
+    if len(matrix) != n:
+        return False
+    for row in matrix:
+        if len(row) != n:
+            return False
+    return True
+
+def judge(a, b, la="A", lb="B"):
+    if abs(a - b) < EPSILON:
+        return "UNDECIDED"
+    if a > b:
+        return la
+    return lb
+
+def analyze_case(case_id, case, filters):
+    n = parse_size_from_key(case_id)
+    if n is None:
+        return {"id": case_id, "status": "FAIL", "reason": "케이스 키 형식 오류"}
+
+    pattern = case["input"]
+    if not is_square(pattern, n):
+        return {"id": case_id, "status": "FAIL", "reason": "패턴 크기 불일치"}
+
+    group = filters.get(f"size_{n}")
+    if group is None:
+        return {"id": case_id, "status": "FAIL", "reason": "해당 크기 필터 없음"}
+
+    score_cross = mac(pattern, group["cross"])
+    score_x = mac(pattern, group["x"])
+    verdict = judge(score_cross, score_x, "Cross", "X")
+
+    return {"id": case_id, "status": "OK", "cross": score_cross, "x": score_x, "verdict": verdict}
+
+for case_id, case in data["patterns"].items():
+    r = analyze_case(case_id, case, data["filters"])
+    print(r)
+
+# mode1()
