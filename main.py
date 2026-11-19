@@ -3,10 +3,6 @@ import json
 with open( "data.json", encoding="utf-8") as f:
     data = json.load(f)
 
-print(data["filters"].keys())  # size_5, size_13, size_25
-# print(len(data["filters"]["size_5"]["cross"]))  # 5가 나오면 정상
-# print(data["patterns"]["size_5_1"]["expected"])  # X
-
 def mac(pattern, filt):
     total = 0
     n= len(pattern)
@@ -155,4 +151,36 @@ def mode2(data):
             if r["status"] == "FAIL":
                 print(f"  - {r['id']}: {r['reason']}")
 
-mode2(data)
+def load_data(path="data.json"):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("data.json 파일을 찾을 수 없습니다.")
+    except json.JSONDecodeError:
+        print("data.json 형식이 올바르지 않습니다.")
+    return None
+
+
+def main():
+    while True:
+        print("\n=== Mini NPU Simulator ===")
+        print("1. 모드 1 (3x3 직접 입력)")
+        print("2. 모드 2 (data.json 분석)")
+        print("0. 종료")
+        choice = input("선택: ").strip()
+
+        if choice == "1":
+            mode1()
+        elif choice == "2":
+            data = load_data()
+            if data is not None:
+                mode2(data)
+        elif choice == "0":
+            break
+        else:
+            print("1, 2, 0 중에서 선택하세요.")
+
+
+if __name__ == "__main__":
+    main()
