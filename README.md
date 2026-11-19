@@ -178,6 +178,33 @@ size_25_2 PASS Cross Cross
 ```
  예를 들어 size_5_1은 Cross 필터 가운데 값 0.9와 X 패턴 9칸 × 0.1 = 0.9가 같게 설계돼 있고, float 계산에서는 0.9와 0.8999999999999999처럼 미세하게 어긋나지만 epsilon 정책에 따라 동점이다.
 
+- 모드 2 결과 출력과 요약(총/통과/실패, 실패 ID와 사유)
+```powershell
+PS C:\Users\MKJ\Desktop\mac> PY MAIN.PY
+dict_keys(['size_5', 'size_13', 'size_25'])
+[size_5_1] FAIL
+  Cross=0.9  X=0.8999999999999999  판정=UNDECIDED  expected=X
+  사유: 동점(UNDECIDED)
+[size_5_2] PASS
+  Cross=8.9  X=0.1  판정=Cross  expected=Cross
+[size_13_1] PASS
+  Cross=0.3  X=14.700000000000008  판정=X  expected=X
+[size_13_2] FAIL
+  Cross=7.499999999999997  X=7.5  판정=UNDECIDED  expected=Cross
+  사유: 동점(UNDECIDED)
+[size_25_1] FAIL
+  Cross=4.9  X=4.899999999999999  판정=UNDECIDED  expected=X
+  사유: 동점(UNDECIDED)
+[size_25_2] PASS
+  Cross=52.9  X=0.1  판정=Cross  expected=Cross
+------------------------------
+총 6개 / 통과 3개 / 실패 3개
+실패 케이스:
+  - size_5_1: 동점(UNDECIDED)
+  - size_13_2: 동점(UNDECIDED)
+  - size_25_1: 동점(UNDECIDED)
+```
+
 ## 7. 개념 정리
 
 ### MAC 연산

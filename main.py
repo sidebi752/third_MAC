@@ -131,8 +131,28 @@ def analyze_case(case_id, case, filters):
             "cross": score_cross, "x": score_x,
             "verdict": verdict, "expected": expected}
 
-for case_id, case in data["patterns"].items():
-    r = analyze_case(case_id, case, data["filters"])
-    print(r["id"], r["status"], r["verdict"], r["expected"], r["reason"])
+def mode2(data):
+    results = []
+    for case_id, case in data["patterns"].items():
+        r = analyze_case(case_id, case, data["filters"])
+        results.append(r)
 
-mode1()
+        print(f"[{r['id']}] {r['status']}")
+        if "cross" in r:   # 점수가 계산된 케이스만 (조기 FAIL 케이스는 점수가 없음)
+            print(f"  Cross={r['cross']}  X={r['x']}  판정={r['verdict']}  expected={r['expected']}")
+        if r["status"] == "FAIL":
+            print(f"  사유: {r['reason']}")
+
+    total = len(results)
+    passed = sum(1 for r in results if r["status"] == "PASS")
+    failed = total - passed
+
+    print("-" * 30)
+    print(f"총 {total}개 / 통과 {passed}개 / 실패 {failed}개")
+    if failed > 0:
+        print("실패 케이스:")
+        for r in results:
+            if r["status"] == "FAIL":
+                print(f"  - {r['id']}: {r['reason']}")
+
+mode2(data)
