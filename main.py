@@ -1,7 +1,7 @@
 import json
+import time
 
-with open( "data.json", encoding="utf-8") as f:
-    data = json.load(f)
+REPEAT = 10
 
 def mac(pattern, filt):
     total = 0
@@ -10,11 +10,6 @@ def mac(pattern, filt):
         for j in range(n):
             total += pattern[i][j] * filt[i][j]
     return total
-
-cross = [[0,1,0],[1,1,1],[0,1,0]]
-x = [[1,0,1],[0,1,0],[1,0,1]]
-# print(mac(cross, cross))
-# print(mac(cross, x))
 
 def read_row(n=3):
     line = input("숫자 입력: ")
@@ -176,10 +171,35 @@ def main():
             data = load_data()
             if data is not None:
                 mode2(data)
+                performance(data)
         elif choice == "0":
             break
         else:
             print("1, 2, 0 중에서 선택하세요.")
+
+
+def measure_mac_ms(pattern, filt):
+    elapsed = 0.0
+    for _ in range(REPEAT):
+        t0 = time.perf_counter()      # 시작 시각 (초정밀 타이머)
+        mac(pattern, filt)            # 측정 구간은 이 한 줄뿐
+        elapsed += time.perf_counter() - t0
+    return elapsed / REPEAT * 1000     # 초 → 밀리초(ms) 변환
+
+
+def performance(data):
+    cross3 = [[0, 1, 0], [1, 1, 1], [0, 1, 0]]
+    rows = [(3, measure_mac_ms(cross3, cross3))]
+
+    for n in (5, 13, 25):
+        pattern = data["patterns"][f"size_{n}_1"]["input"]
+        rows.append((n, measure_mac_ms(pattern, pattern)))
+
+    print("\n[성능 분석] (각 크기 10회 반복 평균)")
+    print(f"{'크기(N×N)':<12}{'평균 시간(ms)':>14}{'연산 횟수(N²)':>16}")
+    for n, ms in rows:
+        size_text = f"{n}x{n}"
+        print(f"{size_text:<12}{ms:>14.4f}{n * n:>16}")
 
 
 if __name__ == "__main__":

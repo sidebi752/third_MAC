@@ -218,6 +218,23 @@ dict_keys(['size_5', 'size_13', 'size_25'])
 0. 종료
 선택: 0
 
+### 크기별 MAC 성능 측정과 N² 표
+```powershell
+------------------------------
+총 6개 / 통과 3개 / 실패 3개
+실패 케이스:
+  - size_5_1: 동점(UNDECIDED)
+  - size_13_2: 동점(UNDECIDED)
+  - size_25_1: 동점(UNDECIDED)
+
+[성능 분석] (각 크기 10회 반복 평균)
+크기(N×N)          평균 시간(ms)       연산 횟수(N²)
+3x3                 0.0018               9
+5x5                 0.0026              25
+13x13               0.0130             169
+25x25               0.0444             625
+```
+
 ## 7. 개념 정리
 
 ### MAC 연산
@@ -282,7 +299,42 @@ False
 - 코디세이 미션3 문서, 개념 가이드 「MAC 연산과 NPU의 이해」, 해결 가이드 「Mini NPU Simulator 개발」
 - 다른 교육생이 공유한 예시 README의 목차 구성(문서 구조만 참고했고, 내용과 측정값은 내 실행 결과로 작성함)
 
-## 11. 커밋 기록
+## 11. 결과 리포트
+연산 횟수는 크기에 따라 N²으로 늘어나는데, 실측 시간은 그보다 완만하게 늘었다.
+동점 3건의 경우 수학적으로는 같은 점수인데, 소수 계산을 N²번 누적하면서 1e-15 수준의 오차가 생김.
+epsilon(1e-9)보다 훨씬 작아서 동점으로 처리되고, 정답은 Cross나 X로 하나 정해져 있으므로 FAIL. 여기서 중요한 점은, ==로 비교했다면 오차 때문에 가짜 승자가 나왔을 거라는 것이다. 
+: epsilon이 필요한 근거
+```powershell
+[size_5_1] FAIL
+  Cross=0.9  X=0.8999999999999999  판정=UNDECIDED  expected=X
+  사유: 동점(UNDECIDED)
+[size_5_2] PASS
+  Cross=8.9  X=0.1  판정=Cross  expected=Cross
+[size_13_1] PASS
+  Cross=0.3  X=14.700000000000008  판정=X  expected=X
+[size_13_2] FAIL
+  Cross=7.499999999999997  X=7.5  판정=UNDECIDED  expected=Cross
+  사유: 동점(UNDECIDED)
+[size_25_1] FAIL
+  Cross=4.9  X=4.899999999999999  판정=UNDECIDED  expected=X
+  사유: 동점(UNDECIDED)
+[size_25_2] PASS
+  Cross=52.9  X=0.1  판정=Cross  expected=Cross
+------------------------------
+총 6개 / 통과 3개 / 실패 3개
+실패 케이스:
+  - size_5_1: 동점(UNDECIDED)
+  - size_13_2: 동점(UNDECIDED)
+  - size_25_1: 동점(UNDECIDED)
+
+[성능 분석] (각 크기 10회 반복 평균)
+크기(N×N)          평균 시간(ms)       연산 횟수(N²)
+3x3                 0.0018               9
+5x5                 0.0026              25
+13x13               0.0130             169
+25x25               0.0444             625
+```
+## 12. 커밋 기록
 (git log --oneline)
 - 11/17
 b18cfb0 (HEAD -> main, origin/main) Docs: 미션 3 README 초안 작성
